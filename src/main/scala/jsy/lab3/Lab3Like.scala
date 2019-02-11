@@ -30,7 +30,7 @@ trait Lab3Like { a: JsyApplication =>
   /** Interface to run your big-step interpreter starting from an empty environment
     * and print out the test input if debugging. */
   def evaluate(e: Expr): Expr = {
-    require(closed(e))
+    require(closed(e), s"evaluate: e ${e} not closed")
     if (debug) {
       println("------------------------------------------------------------")
       println("Evaluating with eval ...")
@@ -44,12 +44,12 @@ trait Lab3Like { a: JsyApplication =>
   }
 
   /** Interface to run your big-step interpreter from a string. This is convenient for unit testing. */
-  def eval(s: String): Expr = evaluate(parse(s))
+  def evaluate(s: String): Expr = evaluate(parse(s))
 
   /** Interface to run your small-step interpreter
     * and print out the steps of evaluation if debugging. */
   def iterateStep(e: Expr): Expr = {
-    require(closed(e))
+    require(closed(e), s"iterateStep: e ${e} not closed")
     if (debug) {
       println("------------------------------------------------------------")
       println("Evaluating with step ...")
@@ -85,13 +85,13 @@ trait Lab3Like { a: JsyApplication =>
         return
       }
 
-    handle() {
+    handle(()) {
       println("# Evaluating ...")
       val v1 = evaluate(e1)
       println(pretty(v1))
     }
 
-    handle() {
+    handle(()) {
       println("# Stepping ...")
       def loop(e: Expr, n: Int): Expr = {
         println("## %4d: %s".format(n, e))

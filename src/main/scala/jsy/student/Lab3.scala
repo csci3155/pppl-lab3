@@ -78,8 +78,8 @@ object Lab3 extends JsyApplication with Lab3Like {
    * use this helper function in eval and step.
    */
   def inequalityVal(bop: Bop, v1: Expr, v2: Expr): Boolean = {
-    require(isValue(v1))
-    require(isValue(v2))
+    require(isValue(v1), s"inequalityVal: v1 ${v1} is not a value")
+    require(isValue(v2), s"inequalityVal: v2 ${v2} is not a value")
     require(bop == Lt || bop == Le || bop == Gt || bop == Ge)
     (v1, v2) match {
       case _ => ??? // delete this line when done
@@ -117,7 +117,7 @@ object Lab3 extends JsyApplication with Lab3Like {
   }
   
   def substitute(e: Expr, v: Expr, x: String): Expr = {
-    require(isValue(v))
+    require(isValue(v), s"substitute: v ${v} to substitute is not a value")
     e match {
       case N(_) | B(_) | Undefined | S(_) => e
       case Print(e1) => Print(substitute(e1, v, x))
@@ -154,6 +154,7 @@ object Lab3 extends JsyApplication with Lab3Like {
   /* External Interfaces */
   
   //this.debug = true // uncomment this if you want to print debugging information
+  this.maxSteps = Some(1000) // comment this out or set to None to not bound the number of steps.
   this.keepGoing = true // comment this out if you want to stop at first exception when processing a file
 
 }
