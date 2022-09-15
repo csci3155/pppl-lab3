@@ -9,5 +9,4 @@ project/
 */.DS_Store
 .ammonite
 .bloop
-metals.sbt
 .bsp
