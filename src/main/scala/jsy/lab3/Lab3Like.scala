@@ -69,7 +69,7 @@ trait Lab3Like { a: JsyApplication =>
   def iterateStep(s: String): Expr = iterateStep(parse(s))
 
   /** Interface for main for JsyApplication */
-  def processFile(file: java.io.File) {
+  def processFile(file: java.io.File): Unit = {
     if (debug) {
       println("============================================================")
       println("File: " + file.getName)
