@@ -5,8 +5,9 @@ import jsy.lab3.Parser.parse
 import jsy.lab3.ast._
 import jsy.tester.JavascriptyTester
 import org.scalatest._
+import flatspec._
 
-class Lab3Spec(lab3: Lab3Like) extends FlatSpec {
+class Lab3Spec(lab3: Lab3Like) extends AnyFlatSpec {
   import lab3._
 
   "eval/function" should "be considered values" in {
@@ -140,7 +141,4 @@ class Lab3SpecRunner extends Lab3Spec(Lab3)
 // The test expects a corresponding .ans file with the expected result.
 class Lab3JsyTests extends JavascriptyTester(None, "lab3", Lab3)
 
-class Lab3Suite extends Suites(
-  new Lab3SpecRunner,
-  new Lab3JsyTests
-)
+

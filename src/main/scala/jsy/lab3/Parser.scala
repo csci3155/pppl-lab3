@@ -83,7 +83,7 @@ object Parser extends TokenParser {
   
   def stmts: Parser[Option[Expr] => Expr] =
     rep(stmt) ^^ { (stmts: List[PStmt]) => (body: Option[Expr]) =>
-      (stmts :\ body){
+      (stmts foldRight body){
         case (EmpPStmt, eopt) => eopt
         case (ExprPStmt(e), None) => Some(e)
         case (ExprPStmt(e1), Some(e2)) => Some(seqExpr(e1, e2))
@@ -118,7 +118,7 @@ object Parser extends TokenParser {
   def seq: Parser[Expr] =
     noseq ~ withposrep("," ~> noseq) ^^ {
       case e0 ~ es => 
-        (es :\ (None: Option[(Position,Expr)])){
+        (es foldRight (None: Option[(Position,Expr)])){
           case ((posi,ei), None) => Some(posi,ei)
           case ((posi,ei), Some((pos,e))) => Some(posi, seqExpr(ei,e) setPos pos)
         } match {
@@ -181,7 +181,7 @@ object Parser extends TokenParser {
       withpos(op) ^^ { case (pos, _) => ((e1, e2) => f(e1, e2) setPos pos) }
     }
     val bopf0 :: bopfrest = binaryOperators(level)
-    (doBop(bopf0) /: bopfrest)((acc, bopf) => acc | doBop(bopf))
+    (bopfrest.foldLeft(doBop(bopf0)))((acc, bopf) => acc | doBop(bopf))
   }
 
   def unary: Parser[Expr] =
@@ -193,7 +193,7 @@ object Parser extends TokenParser {
     "!" ^^ (_ => (e: Expr) => Unary(Not, e))
     
   def call: Parser[Expr] =
-    term ~ rep(callop) ^^ { case e0 ~ calls => (e0 /: calls){ case (acc, mk) => mk(acc) } }
+    term ~ rep(callop) ^^ { case e0 ~ calls => (calls.foldLeft(e0)){ case (acc, mk) => mk(acc) } }
     
   def callop: Parser[Expr => Expr] =
     withpos("(" ~> expr <~ ")") ^^ { case (pos, arg) => (e0 => Call(e0, arg) setPos pos) }
@@ -248,6 +248,8 @@ object Parser extends TokenParser {
     phrase(prog)(tokens) match {
       case Success(e, _) => e
       case NoSuccess(msg, next) => throw new SyntaxError(msg, next)
+      case Error(msg, next) => throw new SyntaxError(msg, next)
+      case Failure(msg,next) => throw new SyntaxError(msg, next)
     }
   }
     
