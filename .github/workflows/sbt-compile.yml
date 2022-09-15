@@ -39,4 +39,3 @@ jobs:
         timeout-minutes: 2
         working-directory: ./student_code
         run: sbt compile
-            
