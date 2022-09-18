@@ -1,6 +1,13 @@
 .idea
 target/
-project/target/
-project/project/
+project/target/*
+project/project/*
 .ivy2
 .sbt
+.metals
+.vscode
+.DS_Store
+.ammonite
+.bloop
+metals.sbt
+.bsp
