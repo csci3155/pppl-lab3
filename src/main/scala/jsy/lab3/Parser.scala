@@ -19,19 +19,19 @@ trait JSTokens extends token.StdTokens {
 }
 
 class Lexer extends lexical.StdLexical with JSTokens {
-  override def token: Parser[Token] =
+  override def token: this.Parser[Token] =
     decimal ~ opt(exponent) ^^ {
       case dec ~ exp => FloatLiteral(List(Some(dec), exp).flatten.mkString)
     } |
     super.token
     
-  def decimal: Parser[String] =
+  def decimal: this.Parser[String] =
     rep1(digit) ~ opt('.' ~ rep(digit)) ^^ {
       case ws ~ fs =>
         List(Some(ws), fs map { mkList }).flatten.flatten.mkString
     }
   
-  def exponent: Parser[String] =
+  def exponent: this.Parser[String] =
     (accept('e') | accept('E')) ~ opt(accept('+') | accept('-')) ~ rep1(digit) ^^ { 
       case exp ~ sign ~ digits =>
         List(Some(List(exp)), sign map { List(_) }, Some(digits)).flatten.flatten.mkString
@@ -44,7 +44,7 @@ trait TokenParser extends syntactical.StdTokenParsers {
   
   import lexical.FloatLiteral
   
-  def floatLit: Parser[String] =
+  def floatLit: this.Parser[String] =
     elem("float", _.isInstanceOf[FloatLiteral]) ^^ (_.chars)
 }
 
@@ -78,10 +78,10 @@ object Parser extends TokenParser {
   case class DeclPStmt(d: Expr => Expr) extends PStmt
   case object EmpPStmt extends PStmt
   
-  def prog: Parser[Expr] =
+  def prog: this.Parser[Expr] =
     stmts ^^ (s => s(None))
   
-  def stmts: Parser[Option[Expr] => Expr] =
+  def stmts: this.Parser[Option[Expr] => Expr] =
     rep(stmt) ^^ { (stmts: List[PStmt]) => (body: Option[Expr]) =>
       (stmts foldRight body){
         case (EmpPStmt, eopt) => eopt
@@ -95,27 +95,27 @@ object Parser extends TokenParser {
       }
     }
 
-  def stmt: Parser[PStmt] =
+  def stmt: this.Parser[PStmt] =
     block ^^ ExprPStmt |
     decl ^^ DeclPStmt |
     expr ^^ ExprPStmt |
     empty_stmt
   
-  def empty_stmt: Parser[PStmt] =
+  def empty_stmt: this.Parser[PStmt] =
     ";" ^^ (_ => EmpPStmt)
     
-  def block: Parser[Expr] =
+  def block: this.Parser[Expr] =
     "{" ~> prog <~ "}"
     
-  def decl: Parser[Expr => Expr] =
+  def decl: this.Parser[Expr => Expr] =
     ("const" ~> ident) ~ withpos("=" ~> expr) ^^ {
       case x ~ ((pos,e1)) => ((e2: Expr) => ConstDecl(x, e1, e2) setPos pos)
     }
     
-  def expr: Parser[Expr] =
+  def expr: this.Parser[Expr] =
     seq
     
-  def seq: Parser[Expr] =
+  def seq: this.Parser[Expr] =
     noseq ~ withposrep("," ~> noseq) ^^ {
       case e0 ~ es => 
         (es foldRight (None: Option[(Position,Expr)])){
@@ -127,24 +127,24 @@ object Parser extends TokenParser {
         }
     }
   
-  def noseq: Parser[Expr] =
+  def noseq: this.Parser[Expr] =
     arrow
 
-  def arrow: Parser[Expr] =
+  def arrow: this.Parser[Expr] =
     (opt("(") ~ ident ~ opt(")")) ~ (withpos("=>" ~> (noseq | funblock))) ^^ {
-      case _ ~ x ~ _ ~ ((pos,body)) => Function(None, x, body) setPos pos
+      case _ ~ x ~ _ ~ ((pos,body)) => Fun(None, x, body) setPos pos
     } |
     cond
 
-  def funblock: Parser[Expr] =
+  def funblock: this.Parser[Expr] =
     ("{" ~> stmts ~ ret <~ rep(empty_stmt) <~ "}") ^^ {
       case stmts ~ ret => stmts(Some(ret))
     }
 
-  def ret: Parser[Expr] =
+  def ret: this.Parser[Expr] =
     "return" ~> expr
     
-  def cond: Parser[Expr] =
+  def cond: this.Parser[Expr] =
     binary(0) ~ opt(withpos(("?" ~> noseq) ~ (":" ~> noseq))) ^^ {
       case e1 ~ None => e1
       case e1 ~ Some((pos, e2 ~ e3)) => If(e1, e2, e3) setPos pos
@@ -169,14 +169,14 @@ object Parser extends TokenParser {
     )
   }
 
-  def binary(level: Int): Parser[Expr] =
+  def binary(level: Int): this.Parser[Expr] =
     if (level >= binaryOperators.length)
       unary
     else
       binary(level + 1) * bop(level)
 
-  def bop(level: Int): Parser[(Expr, Expr) => Expr] = {
-    def doBop(opf: (String, (Expr, Expr) => Expr)): Parser[(Expr, Expr) => Expr] = {
+  def bop(level: Int): this.Parser[(Expr, Expr) => Expr] = {
+    def doBop(opf: (String, (Expr, Expr) => Expr)): this.Parser[(Expr, Expr) => Expr] = {
       val (op, f) = opf
       withpos(op) ^^ { case (pos, _) => ((e1, e2) => f(e1, e2) setPos pos) }
     }
@@ -184,21 +184,21 @@ object Parser extends TokenParser {
     (bopfrest.foldLeft(doBop(bopf0)))((acc, bopf) => acc | doBop(bopf))
   }
 
-  def unary: Parser[Expr] =
+  def unary: this.Parser[Expr] =
     positioned(uop ~ unary ^^ { case op ~ e => op(e) }) |
     call
 
-  def uop: Parser[Expr => Expr] =
+  def uop: this.Parser[Expr => Expr] =
     "-" ^^ (_ => (e: Expr) => Unary(Neg, e)) |
     "!" ^^ (_ => (e: Expr) => Unary(Not, e))
     
-  def call: Parser[Expr] =
+  def call: this.Parser[Expr] =
     term ~ rep(callop) ^^ { case e0 ~ calls => (calls.foldLeft(e0)){ case (acc, mk) => mk(acc) } }
     
-  def callop: Parser[Expr => Expr] =
+  def callop: this.Parser[Expr => Expr] =
     withpos("(" ~> expr <~ ")") ^^ { case (pos, arg) => (e0 => Call(e0, arg) setPos pos) }
 
-  def term: Parser[Expr] =
+  def term: this.Parser[Expr] =
     positioned(
       ident ^^ (s => Var(s)) |
       floatLit ^^ (s => N(s.toDouble)) |
@@ -214,22 +214,22 @@ object Parser extends TokenParser {
     "{" ~> "{" ~> prog <~ "}" <~ "}" |
     failure("atomic expression expected")
 
-  def function: Parser[Expr] =
+  def function: this.Parser[Expr] =
     ("function" ~> opt(ident)) ~ ("(" ~> ident <~ ")") ~ funblock ^^ {
-      case f ~ x ~ body => Function(f, x, body)
+      case f ~ x ~ body => Fun(f, x, body)
     }
 
-  def withpos[T](q: => Parser[T]): Parser[(Position, T)] = Parser { in =>
+  def withpos[T](q: => this.Parser[T]): this.Parser[(Position, T)] = this.Parser { in =>
     q(in) match {
       case Success(t, in1) => Success((in.pos,t), in1)
       case ns: NoSuccess => ns
     }
   }
   
-  def withposrep[T](q: => Parser[T]): Parser[List[(Position,T)]] =
+  def withposrep[T](q: => this.Parser[T]): this.Parser[List[(Position,T)]] =
     rep(withpos(q))
     
-  def withposrep1[T](q: => Parser[T]): Parser[List[(Position,T)]] =
+  def withposrep1[T](q: => this.Parser[T]): this.Parser[List[(Position,T)]] =
     rep1(withpos(q))    
 
   private var parseSource: String = "<source>"

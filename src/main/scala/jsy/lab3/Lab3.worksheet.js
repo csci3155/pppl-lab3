@@ -6,18 +6,18 @@
 
 // The new language feature in Lab 3 is first-class functions.
 
-const id = function (x) { return x };
+const id = function (x) {
+  return x;
+};
 
-const plus = x => y => x + y;
+const plus = (x) => (y) => x + y;
 
 const j = plus(3)(4);
 
 id("Hello, ") + j;
 
 const factorial = function f(n) {
-  return n === 0
-    ? 1
-    : n * f(n - 1)
+  return n === 0 ? 1 : n * f(n - 1);
 };
 
 const factorial3 = factorial(3);

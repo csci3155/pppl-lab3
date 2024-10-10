@@ -12,7 +12,7 @@ import jsy.lab3.Parser.{parse, parseFile}
 import jsy.lab3.ast._
 
 // Imports all of the functions form jsy.student.Lab3 (your implementations in Lab3.scala)
-import jsy.student.Lab3._
+import jsy.lab3.Lab3._
 
 // The new language feature in Lab 3 is first-class functions.
 
@@ -39,19 +39,13 @@ parse("const plus = x => y => x + y")
 parse("x => { const z = 3; return x + z }")
 parse("function (x) { const z = 3; return x + z }")
 
-// Run your big-step interpreter
-//evaluate("1 + 2")
-evaluate("x => y => x + y")
-//evaluate("const plus = x => y => x + y; plus(3)(4)")
-
 // Run your small-step interpreter
 //iterateStep("1 + 2")
 //iterateStep("x => y => x + y")
 //iterateStep("const plus = x => y => x + y; plus(3)(4)")
 
 // Parse the JavaScripty expression in your worksheet
-val worksheetJsy = parseFile("src/main/scala/jsy/student/Lab3.worksheet.js")
+val worksheetJsy = parseFile("src/main/scala/jsy/lab3/Lab3.worksheet.js")
 
 // Eval the JavaScripty expression in your worksheet
-//evaluate(worksheetJsy)
 //iterateStep(worksheetJsy)
