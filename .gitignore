@@ -1,13 +1,27 @@
-.idea
+# sbt
 target/
 project/target/*
 project/project/*
 .ivy2
 .sbt
-.metals
+
+# Intellj
+.idea
+
+# VS Code
 .vscode
-.DS_Store
-.ammonite
+
+# Metals
+.metals
 .bloop
 metals.sbt
 .bsp
+
+# Ammonite
+.ammonite
+
+# macOS
+.DS_Store
+
+# Jupyter
+/.ipynb_checkpoints/
