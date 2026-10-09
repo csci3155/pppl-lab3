@@ -2,8 +2,8 @@ package jsy.lab3
 
 import org.scalatest.flatspec.AnyFlatSpec
 import Parser.parse
-import ast._
-import Lab3._
+import ast.*
+import Lab3.*
 
 
 class Lab3StudentSpec extends AnyFlatSpec {

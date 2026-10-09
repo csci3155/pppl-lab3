@@ -74,8 +74,8 @@ object ast {
       case B(b) => b.toString
       case Undefined => "undefined"
       case S(s) => s
-      case Fun(p, _, _) =>
-        "[Function%s]".format(p match { case None => "" case Some(s) => ": " + s })
+      case Fun(xopt, _, _) =>
+        "[Function%s]".format(xopt match { case None => " (anonymous)" case Some(s) => ": " + s })
     }
   }
 

@@ -9,10 +9,10 @@
 import jsy.lab3.Parser.{parse, parseFile}
 
 // Imports the ast nodes
-import jsy.lab3.ast._
+import jsy.lab3.ast.*
 
 // Imports all of the functions form jsy.student.Lab3 (your implementations in Lab3.scala)
-import jsy.lab3.Lab3._
+import jsy.lab3.Lab3.*
 
 // The new language feature in Lab 3 is first-class functions.
 
