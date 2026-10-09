@@ -2,7 +2,7 @@ package jsy.lab3
 import scala.util.Try
 
 object Lab3 extends jsy.util.JsyApplication  {
-  import ast._
+  import ast.*
   
   /*
    * CSCI 3155: Lab 3 
